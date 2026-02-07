@@ -1,24 +1,22 @@
-import express from 'express'
-import { apiError } from './apiError.js';
+import express from "express";
+import userRouter from "./routes/users.routes.js";
+import { apiError } from "./utils/apiError.js";
 
 const app = express();
 
-app.use(express.json())
-// app.use(express.urlencoded({extended:true}))
+app.use(express.json());
 
 
-app.post("/" , (req , res )=>{
-    const {name , email}  =req.body;
-    console.log(name , email)
+app.use("/api/users", userRouter)
 
-    if(!name){
-        throw new apiError(400 , "bad request");
-    }
-    
-    
-})
+app.use((err , req , res , next ) => {
+  
+    res.status(err.statusCode).json({message:err})
 
-app.listen(3000 , ()=>{
-    console.log("app is running on port 3000");
-})
+}
+)
 
+
+
+
+export default app;

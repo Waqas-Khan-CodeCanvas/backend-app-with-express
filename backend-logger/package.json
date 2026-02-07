@@ -1,0 +1,26 @@
+{
+  "name": "backend-logger",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "debug": "cross-env NODE_ENV=development nodemon --inspect index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.1.6",
+    "pino": "^10.3.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.4",
+    "nodemon": "^3.1.11",
+    "pino-pretty": "^13.1.3"
+  }
+}
