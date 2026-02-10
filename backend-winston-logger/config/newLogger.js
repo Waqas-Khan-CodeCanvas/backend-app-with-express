@@ -1,8 +1,8 @@
-
-
 import winston from "winston";
 import path from  "path";
-import {fileURLToPath} from "url";
+import {fileURLToPath} from "url"
+import { Console } from "console";
+import { json } from "stream/consumers";
 
 const { createLogger , format , transports } = winston;
 const { timestamp , combine , colorize , errors , printf } = format;
@@ -21,18 +21,13 @@ const devFormat = printf(({timestamp , level , message , stack})=>{
 const logger = createLogger({
     level : isProduction ? "info" : "debug",
     format:combine(
-        timestamp({format:"YYYY-MM-DD HH:mm:ss A"}),
+        timestamp({format:"YYYY-MM-DD HH:MM:SS A"}),
         errors({stack:true}),
-        isProduction ? format.json() : combine(colorize() , devFormat)
+        isProduction?_:colorize(),
+        isProduction ? json() : devFormat
     ),
-    transports:isProduction ?[
-        new transports.File({filename:path.join(logDir , "combined/combined.log")}),
-        new transports.File({filename:path.join(logDir , "errors/error.log") , level:"error"})]:[
-        new transports.Console()
-    ],
-    exitOnError:false,
+    transports:[
+        new transports.Console(),
+    ]
     
 })
-
-
-export {logger}
