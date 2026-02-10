@@ -1,0 +1,4 @@
+{"level":"info","message":"User created","timestamp":"2026-02-10 02:03:59"}
+{"level":"warn","message":"Invalid login attempt","timestamp":"2026-02-10 02:03:59"}
+{"level":"error","message":"Database connection failed","stack":"Error: Database connection failed\n    at file:///C:/Users/waqas/Desktop/backend/backend-app-with-express/backend-jwt/src/app.js:27:14\n    at ModuleJob.run (node:internal/modules/esm/module_job:345:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)","timestamp":"2026-02-10 02:03:59"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2026-02-10 02:03:59"}
