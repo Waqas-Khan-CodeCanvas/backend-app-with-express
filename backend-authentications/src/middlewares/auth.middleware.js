@@ -1,75 +1,66 @@
-export const verifyJWT = asyncHandler(async (req, _, next) => {
-    const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-    
-    if (!token) {
-        throw new ApiError(401, "Unauthorized");
-    }
-
-    let decodedToken;
-    try {
-        decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    } catch (err) {
-        if (err.name === "TokenExpiredError") {
-            throw new ApiError(401, "Access token expired");
-        }
-        throw new ApiError(401, "Invalid access token");
-    }
-
-    const user = await User.findById(decodedToken._id).select("-password -refreshToken");
-    if (!user) {
-        throw new ApiError(401, "Unauthorized");
-    }
-
-    req.user = user;
-    next();
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import { apiError } from "../utils/apiError.js";
 import jwt from "jsonwebtoken";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ENV } from "../config/env.js";
 import { User } from "../models/user.model.js";
 
-// Verify Access Token
-export const verifyJWT = asyncHandler(async (req, res, next) => {
-    const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-
-    if (!token) throw new ApiError(401, "Unauthorized");
-
+const protect = async (req, _, next) => {
     try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const user = await User.findById(decoded._id).select("-password -refreshToken");
-        if (!user) throw new ApiError(401, "Unauthorized");
+        if (!ENV.JWT_ACCESS_TOKEN_SECRET_KEY) {
+            throw new Error("JWT secret key not configured");
+        }
+
+        const authHeader = req.headers.authorization;
+
+        const token =
+            req.cookies?.accessToken ||
+            (authHeader?.startsWith("Bearer ")
+                ? authHeader.split(" ")[1]
+                : null);
+
+        if (!token) {
+            return next(new apiError(401, "Access token not provided"));
+        }
+
+        const decoded = jwt.verify(
+            token,
+            ENV.JWT_ACCESS_TOKEN_SECRET_KEY,
+            { algorithms: ["HS256"] }
+        );
+
+        const user = await User.findById(decoded._id)
+            .select("-password -refreshToken");
+
+        if (!user) {
+            return next(new apiError(401, "Invalid access token"));
+        }
 
         req.user = user;
-        next();
+        return next();
+
     } catch (err) {
-        // Token expired → trigger refresh
         if (err.name === "TokenExpiredError") {
-            return res.status(401).json({ message: "Access token expired", code: "TOKEN_EXPIRED" });
+            return next(new apiError(401, "Access token expired"));
         }
-        throw new ApiError(401, "Invalid access token");
+
+        return next(new apiError(401, "Invalid access token"));
     }
-});
+};
+
+export { protect };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Refresh Access Token
 // export const refreshAccessToken = asyncHandler(async (req, res) => {
