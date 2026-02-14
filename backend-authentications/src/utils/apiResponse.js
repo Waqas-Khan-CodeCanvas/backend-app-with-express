@@ -1,18 +1,14 @@
 class ApiResponse {
-    constructor(statusCode, message = "Success",data , metaData =""){
-        this.statusCode = statusCode
-        this.success = statusCode < 400
-        this.message = message
-        this.data = data
-        this.metaData = metaData
-    }
+  constructor(statusCode, data, message = "Success", metaData = "") {
+    this.statusCode = statusCode;
+    this.success = statusCode < 400;
+    this.message = message;
+    this.data = data;
+    this.metaData = metaData;
+  }
 }
 
-export { ApiResponse }
-
-
-
-
+export { ApiResponse };
 
 // /**
 //  * @desc Standardized API response helper

@@ -7,3 +7,6 @@ const asyncHandler = (fn) => async (req, res , next )=>{
       next(error)
     }
   }
+
+
+  export {asyncHandler}
