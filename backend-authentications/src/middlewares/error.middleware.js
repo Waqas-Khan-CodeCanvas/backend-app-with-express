@@ -1,4 +1,4 @@
-import { logger } from "../utils/logger.js";
+import { logger } from "../config/logger.js";
 import { ENV } from "../config/env.js";
 
 const errorMiddleware = (err, req, res, next) => {
@@ -18,7 +18,7 @@ const errorMiddleware = (err, req, res, next) => {
     success: false,
     message:
       ENV.NODE_ENV === "production"
-        ? "Something went wrong"
+        ? err.message
         : err.message,
     ...(ENV.NODE_ENV !== "production" && { stack: err.stack }),
   });
