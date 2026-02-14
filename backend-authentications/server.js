@@ -1,13 +1,21 @@
-import { app } from "./app.js";
-import { logger } from "./config/logger.js";
-import "./config/db.js"; // DB connection
+import { app } from "./src/app.js";
+import { logger } from "./src/config/logger.js";
+import "./src/config/db.js"; // DB connection
+import { ENV } from "./src/config/env.js";
+import { connectDB } from "./src/config/db.js";
 
-const PORT = process.env.PORT || 5000;
+const PORT = ENV.PORT;
 
-const server = app.listen(PORT, () => {
-  logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+connectDB()
+.then(()=>{
+   app.listen(PORT, () => {
+  logger.info(`Server running in ${ENV.NODE_ENV} mode on port ${PORT}`);
 });
 
+})
+.catch((err)=>{
+  logger.error("connection failed error: " , err);
+})
 // Graceful Shutdown
 const shutdown = () => {
   logger.info("Shutting down server gracefully...");
