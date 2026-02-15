@@ -68,6 +68,7 @@ const login = async ({ useremail, password }) => {
 
 const logout = async (userId) => {
   await User.findByIdAndUpdate(userId, { refreshToken: "" });
+  console.log("user logout")
 };
 
 export { register, login, logout };
