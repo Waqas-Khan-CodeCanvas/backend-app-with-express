@@ -4,12 +4,8 @@ import { logger } from "./logger.js";
 
 let isConnected = false;
 
-/**
- * Connects to MongoDB using Mongoose.
- * Ensures singleton connection.
- */
 export const connectDB = async () => {
-  if (isConnected) {
+  if (isConnected || mongoose.connection.readyState === 1) {
     logger.info("MongoDB is already connected.");
     return;
   }
@@ -17,16 +13,36 @@ export const connectDB = async () => {
   try {
     const conn = await mongoose.connect(env.MONGODB_URI, {
       autoIndex: false,              // Don't build indexes automatically in prod
-      maxPoolSize: 10,               // Connection pool
+      maxPoolSize: 10,               // Connection pool size
       serverSelectionTimeoutMS: 5000, // Fail fast if DB unreachable
-      socketTimeoutMS: 45000,
+      socketTimeoutMS: 45000,        // Prevent hanging
     });
 
-    logger.info({ host: conn.connection.host }, "MongoDB connected successfully");
     isConnected = true;
+    logger.info({ host: conn.connection.host }, "MongoDB connected successfully");
+
+    // Event listeners for monitoring
+    mongoose.connection.on("connected", () => {
+      logger.info("MongoDB connection established");
+    });
+
+    mongoose.connection.on("disconnected", () => {
+      logger.warn("MongoDB disconnected");
+    });
+
+    mongoose.connection.on("error", (err) => {
+      logger.error({ err }, "MongoDB connection error");
+    });
+
+    
+    process.on("SIGINT", async () => { // Graceful shutdown
+      await mongoose.connection.close();
+      logger.info("MongoDB connection closed due to app termination");
+      process.exit(0);
+    });
 
   } catch (error) {
-    logger.fatal({ err: error, uri: env.MONGODB_URI }, "MongoDB connection failed");
+    logger.fatal({ err: error }, "MongoDB connection failed");
     process.exit(1);
   }
 };
